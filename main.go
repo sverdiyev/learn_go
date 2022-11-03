@@ -1,24 +1,25 @@
 package main
 
-import (
-	"fmt"
-	"sort"
-)
+import "fmt"
 
 func main() {
 
-	//Maps
-	myMap := make(map[string]string)
-	myMap["Sasha"] = "me"
-	fmt.Println(myMap["Sasha"])
+	//loop over map
+	myMap := map[string]string{"me": "Sasha", "you": "unknown", "him": "my Boi"}
 
-	//Slices (aka Arrays)
-	mySlice := []int{10, 11}
-	mySlice = append(mySlice, 9, 8, 7, 6, 5, 2)
+	for key, value := range myMap {
+		fmt.Println(key, value)
+	}
 
-	fmt.Println(mySlice)
-	sort.Ints(mySlice)
-	fmt.Println(mySlice)
-	fmt.Println(mySlice[0:2])
+	fmt.Println()
+	fmt.Println()
+
+	//loop over slice
+	mySlice := []string{"Sasha", "Masha"}
+	mySlice = append(mySlice, "Go", "Bravo", "Gopher", "Alpha", "Grin", "Delta")
+
+	for i, myString := range mySlice {
+		fmt.Println(i, myString)
+	}
 
 }
