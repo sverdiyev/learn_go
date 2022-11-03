@@ -2,31 +2,23 @@ package main
 
 import (
 	"fmt"
-	"time"
+	"sort"
 )
-
-type User struct {
-	FirstName string
-	LastName  string
-	BirthDate time.Time
-}
-
-func (user *User) printFullName() {
-	fmt.Println(user.FirstName + " " + user.LastName)
-}
-func (user *User) getFullName() string {
-	return user.FirstName + " " + user.LastName
-}
 
 func main() {
 
-	user := User{
-		FirstName: "Sasha",
-		LastName:  "Ver",
-		BirthDate: time.Time{},
-	}
-	fmt.Println(user)
+	//Maps
+	myMap := make(map[string]string)
+	myMap["Sasha"] = "me"
+	fmt.Println(myMap["Sasha"])
 
-	user.printFullName()
+	//Slices (aka Arrays)
+	mySlice := []int{10, 11}
+	mySlice = append(mySlice, 9, 8, 7, 6, 5, 2)
+
+	fmt.Println(mySlice)
+	sort.Ints(mySlice)
+	fmt.Println(mySlice)
+	fmt.Println(mySlice[0:2])
 
 }
