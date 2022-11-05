@@ -21,10 +21,13 @@ func main() {
 	}
 	render.InjectCachedTemplates(&app)
 
+	handlersRepo := handlers.CreateRepo(&app)
+	handlers.InjectRepo(handlersRepo)
+
 	app.Templates = cachedTmpls
 
-	http.HandleFunc("/", handlers.Home)
-	http.HandleFunc("/about", handlers.About)
+	http.HandleFunc("/", handlers.Repo.Home)
+	http.HandleFunc("/about", handlers.Repo.About)
 
 	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
 	_ = http.ListenAndServe(portNumber, nil)
