@@ -1,54 +1,57 @@
 package render
 
 import (
-	"fmt"
+	"errors"
 	"html/template"
-	"log"
 	"net/http"
+	"path/filepath"
 )
 
 var cachedTemplates = make(map[string]*template.Template)
 
-func RenderTemplate(w http.ResponseWriter, tmplName string) {
-	var tmpl *template.Template
-	var err error
+func RenderTemplate(w http.ResponseWriter, tmplName string) error {
 
-	// check to see if we already have the template in our cache
-	_, inMap := cachedTemplates[tmplName]
-	if !inMap {
-		// need to create the template
-		log.Println("creating template and adding to cache")
-		err = createTemplateCache(tmplName)
+	if len(cachedTemplates) == 0 {
+		tmplCache, err := createTemplateCache()
 		if err != nil {
-			log.Println(err)
+			return errors.New("error creating template cache")
 		}
-	} else {
-		// we have the template in the cache
-		log.Println("using cached template")
+		cachedTemplates = tmplCache
+
 	}
-
-	tmpl = cachedTemplates[tmplName]
-
-	err = tmpl.Execute(w, nil)
+	tmpl := cachedTemplates[tmplName]
+	err := tmpl.Execute(w, nil)
 	if err != nil {
-		log.Println(err)
+		return errors.New("error executing template")
 	}
+	return nil
 }
 
-func createTemplateCache(tmplName string) error {
-	templates := []string{
-		fmt.Sprintf("./templates/%s", tmplName),
-		"./templates/base.layout.tmpl",
-	}
+func createTemplateCache() (map[string]*template.Template, error) {
+	templateCache := map[string]*template.Template{}
 
-	// parse the template
-	tmpl, err := template.ParseFiles(templates...)
+	layouts, err := filepath.Glob("./templates/*.layout.tmpl")
 	if err != nil {
-		return err
+		return nil, errors.New("did not find layouts")
 	}
 
-	// add template to cache (map)
-	cachedTemplates[tmplName] = tmpl
+	pages, err := filepath.Glob("./templates/*.page.tmpl")
+	if err != nil {
+		return nil, errors.New("did not find files")
+	}
+	for _, page := range pages {
+		name := filepath.Base(page)
+		tmpl, err := template.New(name).ParseFiles(page)
+		if err != nil {
+			return nil, err
+		}
 
-	return nil
+		tmplWithLayout, err := tmpl.ParseFiles(layouts...)
+		if err != nil {
+			return nil, errors.New("error during parsing layouts")
+		}
+		templateCache[name] = tmplWithLayout
+
+	}
+	return templateCache, nil
 }
