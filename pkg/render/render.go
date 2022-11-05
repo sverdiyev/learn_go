@@ -1,25 +1,30 @@
 package render
 
 import (
+	"awesomeProject/pkg/config"
 	"errors"
 	"html/template"
 	"net/http"
 	"path/filepath"
 )
 
-var cachedTemplates = make(map[string]*template.Template)
+var app *config.AppConfig
 
+func InjectCachedTemplates(appConfig *config.AppConfig) {
+	app = appConfig
+}
 func RenderTemplate(w http.ResponseWriter, tmplName string) error {
+	templatesCache := app.Templates
 
-	if len(cachedTemplates) == 0 {
-		tmplCache, err := createTemplateCache()
+	if templatesCache == nil || len(templatesCache) == 0 {
+		tmplCache, err := CreateTemplateCache()
 		if err != nil {
 			return errors.New("error creating template cache")
 		}
-		cachedTemplates = tmplCache
+		templatesCache = tmplCache
 
 	}
-	tmpl := cachedTemplates[tmplName]
+	tmpl := templatesCache[tmplName]
 	err := tmpl.Execute(w, nil)
 	if err != nil {
 		return errors.New("error executing template")
@@ -27,7 +32,7 @@ func RenderTemplate(w http.ResponseWriter, tmplName string) error {
 	return nil
 }
 
-func createTemplateCache() (map[string]*template.Template, error) {
+func CreateTemplateCache() (map[string]*template.Template, error) {
 	templateCache := map[string]*template.Template{}
 
 	layouts, err := filepath.Glob("./templates/*.layout.tmpl")
